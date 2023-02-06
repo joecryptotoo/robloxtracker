@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	// Get initial the username string
+	// Get the username string
 	user, err := getUsernameFromID(userID)
 	if err != nil {
 		log.Println(err)
