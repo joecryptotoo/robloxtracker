@@ -1,11 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.19-alpine
+FROM golang:1.19-alpine AS build
 
 WORKDIR /src
 
 COPY . ./
 
-RUN go build -o /robloxtracker
+RUN go build -o /src/robloxtracker
 
-CMD [ "/robloxtracker" ]
+FROM alpine:latest AS final
+
+COPY --from=build /src/robloxtracker /robloxtracker
+
+ENTRYPOINT [ "/robloxtracker" ]
