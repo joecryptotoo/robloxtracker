@@ -26,6 +26,7 @@ func main() {
 	presenceState := 0
 	t := time.NewTicker(time.Second * 5)
 
+	// Check presence every 5 seconds
 	for range t.C {
 		// Check presence
 		user.Presence, err = checkPresence(user.ID)
