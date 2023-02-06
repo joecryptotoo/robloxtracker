@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,7 +39,7 @@ func downloadThumbnail(userID int64) (io.Reader, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -52,12 +51,12 @@ func downloadThumbnail(userID int64) (io.Reader, error) {
 	}
 
 	if len(thumbnailResponse.Data) == 0 {
-		return nil, fmt.Errorf("User not found")
+		return nil, fmt.Errorf("user not found")
 	}
 
 	thumbnail := thumbnailResponse.Data[0]
 	if thumbnail.State != "Completed" {
-		return nil, fmt.Errorf("Thumbnail not ready")
+		return nil, fmt.Errorf("thumbnail not ready")
 	}
 
 	thumbnailURL, err := url.Parse(thumbnail.ImageURL)
@@ -74,7 +73,7 @@ func downloadThumbnail(userID int64) (io.Reader, error) {
 		return nil, err
 	}
 
-	thumbnailData, err := ioutil.ReadAll(thumbnailResp.Body)
+	thumbnailData, err := io.ReadAll(thumbnailResp.Body)
 	if err != nil {
 		return nil, err
 	}

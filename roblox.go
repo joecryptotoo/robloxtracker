@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -35,14 +35,14 @@ type User struct {
 	Presence               UserPresence `json:"userPresence"`
 }
 
-func GetUsernameFromID(id int64) (User, error) {
+func getUsernameFromID(id int64) (User, error) {
 	resp, err := http.Get(fmt.Sprintf("https://users.roblox.com/v1/users/%d", id))
 	if err != nil {
 		return User{}, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return User{}, err
 	}

@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	user, err := GetUsernameFromID(userID)
+	user, err := getUsernameFromID(userID)
 	if err != nil {
 		log.Println(err)
 		return
