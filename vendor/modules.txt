@@ -1,0 +1,3 @@
+# github.com/gregdel/pushover v1.1.0
+## explicit; go 1.14
+github.com/gregdel/pushover
