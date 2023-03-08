@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -21,23 +23,23 @@ func RobloxMetrics(reg prometheus.Registerer) *Metrics {
 		}),
 		OfflineTime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "OfflineTime",
-			Help: "Time spent offline",
+			Help: "Seconds spent offline",
 		}),
 		OnlineTime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "OnlineTime",
-			Help: "Time spent online",
+			Help: "Seconds spent online",
 		}),
 		InGameTime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "InGameTime",
-			Help: "Time spent in-game",
+			Help: "Seconds spent in-game",
 		}),
 		InStudioTime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "InStudioTime",
-			Help: "Time spent in-studio",
+			Help: "Seconds spent in-studio",
 		}),
 		UnknownTime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "UnknownTime",
-			Help: "Time spent in an unknown state",
+			Help: "Seconds spent in an unknown state",
 		}),
 	}
 
@@ -48,4 +50,42 @@ func RobloxMetrics(reg prometheus.Registerer) *Metrics {
 	reg.MustRegister(m.InStudioTime)
 	reg.MustRegister(m.UnknownTime)
 	return m
+}
+
+func updateMetrics(user User) {
+
+	user.Metrics.UserPresenceType.Set(float64(user.LastPresenceType))
+
+	switch user.LastPresenceType {
+	case 0:
+		user.Metrics.OfflineTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
+		user.Metrics.OnlineTime.Set(float64(0))
+		user.Metrics.InGameTime.Set(float64(0))
+		user.Metrics.InStudioTime.Set(float64(0))
+		user.Metrics.UnknownTime.Set(float64(0))
+	case 1:
+		user.Metrics.OfflineTime.Set(float64(0))
+		user.Metrics.OnlineTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
+		user.Metrics.InGameTime.Set(float64(0))
+		user.Metrics.InStudioTime.Set(float64(0))
+		user.Metrics.UnknownTime.Set(float64(0))
+	case 2:
+		user.Metrics.OfflineTime.Set(float64(0))
+		user.Metrics.OnlineTime.Set(float64(0))
+		user.Metrics.InGameTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
+		user.Metrics.InStudioTime.Set(float64(0))
+		user.Metrics.UnknownTime.Set(float64(0))
+	case 3:
+		user.Metrics.OfflineTime.Set(float64(0))
+		user.Metrics.OnlineTime.Set(float64(0))
+		user.Metrics.InGameTime.Set(float64(0))
+		user.Metrics.InStudioTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
+		user.Metrics.UnknownTime.Set(float64(0))
+	default:
+		user.Metrics.OfflineTime.Set(float64(0))
+		user.Metrics.OnlineTime.Set(float64(0))
+		user.Metrics.InGameTime.Set(float64(0))
+		user.Metrics.InStudioTime.Set(float64(0))
+		user.Metrics.UnknownTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
+	}
 }

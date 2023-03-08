@@ -42,6 +42,7 @@ func main() {
 
 	// Start presence checker
 	presenceState := 0
+	user.LastPresenceType = presenceState
 	t := time.NewTicker(time.Second * 5)
 
 	// Expose metrics and custom registry via an HTTP server
@@ -73,6 +74,8 @@ func main() {
 			notifyPresenceChange(user)
 			user.LastPresenceChange = time.Now().UTC()
 		}
+
+		updateMetrics(user)
 
 		// Update presence state
 		presenceState = user.Presence.UserPresenceType
