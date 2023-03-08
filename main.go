@@ -32,25 +32,12 @@ func main() {
 
 	user.LastPresenceChange = time.Now().UTC()
 
-	user.Metrics = *RobloxMetrics(reg)
-
-	user.Metrics.OfflineTime.Set(float64(0))
-	user.Metrics.OnlineTime.Set(float64(0))
-	user.Metrics.InGameTime.Set(float64(0))
-	user.Metrics.InStudioTime.Set(float64(0))
-	user.Metrics.UnknownTime.Set(float64(0))
+	user.Metrics = *robloxMetrics(reg)
 
 	// Start presence checker
 	presenceState := 0
 	user.LastPresenceType = presenceState
 	t := time.NewTicker(time.Second * 5)
-
-	// Expose metrics and custom registry via an HTTP server
-	// using the HandleFor function. "/metrics" is the usual endpoint for that.
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	go func() {
-		log.Fatal(http.ListenAndServe(":8080", nil))
-	}()
 
 	// Check presence every 5 seconds
 	for range t.C {
@@ -82,4 +69,10 @@ func main() {
 		// Update presence state
 		presenceState = user.Presence.UserPresenceType
 	}
+
+	// Expose metrics and custom registry via an HTTP server
+	// using the HandleFor function. "/metrics" is the usual endpoint for that.
+	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
