@@ -54,9 +54,9 @@ func RobloxMetrics(reg prometheus.Registerer) *Metrics {
 
 func updateMetrics(user User) {
 
-	user.Metrics.UserPresenceType.Set(float64(user.LastPresenceType))
+	user.Metrics.UserPresenceType.Set(float64(user.Presence.UserPresenceType))
 
-	switch user.LastPresenceType {
+	switch user.Presence.UserPresenceType {
 	case 0:
 		user.Metrics.OfflineTime.Set(float64(time.Now().UTC().Sub(user.LastPresenceChange).Seconds()))
 		user.Metrics.OnlineTime.Set(float64(0))
