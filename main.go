@@ -2,12 +2,20 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
+
+	// Create a non-global registry.
+	reg := prometheus.NewRegistry()
+
 	// Check for required environment variables
 	userID, err := strconv.ParseInt(os.Getenv("ROBLOX_USER_ID"), 10, 64)
 	if err != nil {
@@ -22,9 +30,24 @@ func main() {
 		return
 	}
 
+	user.LastPresenceChange = time.Now().UTC()
+
+	user.Metrics = *RobloxMetrics(reg)
+
+	user.Metrics.OfflineTime.Set(float64(0))
+	user.Metrics.OnlineTime.Set(float64(0))
+	user.Metrics.InGameTime.Set(float64(0))
+	user.Metrics.InStudioTime.Set(float64(0))
+	user.Metrics.UnknownTime.Set(float64(0))
+
 	// Start presence checker
 	presenceState := 0
 	t := time.NewTicker(time.Second * 5)
+
+	// Expose metrics and custom registry via an HTTP server
+	// using the HandleFor function. "/metrics" is the usual endpoint for that.
+	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 
 	// Check presence every 5 seconds
 	for range t.C {
@@ -37,12 +60,18 @@ func main() {
 
 		// Check if presence has changed and notify
 		if presenceState != user.Presence.UserPresenceType {
-			now := time.Now().UTC()
-			minutesSinceLastOnline := int(now.Sub(user.Presence.LastOnline).Minutes())
+			// Update last online time
+			user.LastPresenceType = presenceState
+			minutesSinceLastOnline := int(time.Now().UTC().Sub(user.Presence.LastOnline).Minutes())
+
+			// Log presence change
 			log.Printf("User %s is %s, last online %d minutes ago\n", user.Name, presenceTypeToString(user.Presence.UserPresenceType), minutesSinceLastOnline)
+
+			log.Printf("Presence: %#v\n", user.Presence)
 
 			// Notify if user is online
 			notifyPresenceChange(user)
+			user.LastPresenceChange = time.Now().UTC()
 		}
 
 		// Update presence state

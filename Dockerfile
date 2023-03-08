@@ -12,4 +12,6 @@ FROM alpine:latest AS final
 
 COPY --from=build /src/robloxtracker /robloxtracker
 
+EXPOSE 8080/tcp
+
 ENTRYPOINT [ "/robloxtracker" ]

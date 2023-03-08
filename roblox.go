@@ -33,6 +33,9 @@ type User struct {
 	Name                   string       `json:"name"`
 	DisplayName            string       `json:"displayName"`
 	Presence               UserPresence `json:"userPresence"`
+	LastPresenceChange     time.Time    `json:"lastPresenceChange"`
+	LastPresenceType       int          `json:"lastPresenceType"`
+	Metrics                Metrics      `json:"metrics"`
 }
 
 func getUsernameFromID(id int64) (User, error) {
