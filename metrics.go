@@ -20,9 +20,3 @@ func robloxMetrics(reg prometheus.Registerer) *Metrics {
 
 	return m
 }
-
-func updateMetrics(user User) {
-
-	user.Metrics.UserPresenceType.Set(float64(user.Presence.UserPresenceType))
-
-}

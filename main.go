@@ -39,6 +39,13 @@ func main() {
 	user.LastPresenceType = presenceState
 	t := time.NewTicker(time.Second * 5)
 
+	// Expose metrics and custom registry via an HTTP server
+	// using the HandleFor function. "/metrics" is the usual endpoint for that.
+	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+	go func() {
+		log.Fatal(http.ListenAndServe(":8080", nil))
+	}()
+
 	// Check presence every 5 seconds
 	for range t.C {
 		// Check presence
@@ -64,15 +71,11 @@ func main() {
 			user.LastPresenceChange = time.Now().UTC()
 		}
 
-		updateMetrics(user)
+		// Update metrics
+		user.Metrics.UserPresenceType.Set(float64(user.Presence.UserPresenceType))
 
 		// Update presence state
 		presenceState = user.Presence.UserPresenceType
 	}
-
-	// Expose metrics and custom registry via an HTTP server
-	// using the HandleFor function. "/metrics" is the usual endpoint for that.
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
